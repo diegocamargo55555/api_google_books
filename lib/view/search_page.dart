@@ -14,8 +14,10 @@ class _SearchPageState extends State<SearchPage> {
 
   List<Book> _books = [];
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   String _errorMessage = '';
   SearchType _searchType = SearchType.title;
+  int _startIndex = 0; 
 
   Future<void> _performSearch() async {
     final query = _controller.text;
@@ -25,12 +27,14 @@ class _SearchPageState extends State<SearchPage> {
       _isLoading = true;
       _errorMessage = '';
       _books = [];
+      _startIndex = 0;
     });
 
     try {
       final books = await _bookService.searchBooks(
         query: query,
         type: _searchType,
+        startIndex: _startIndex,
       );
 
       setState(() {
@@ -50,6 +54,42 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
+  Future<void> _loadMoreBooks() async {
+    if (_isLoadingMore) return;
+
+    setState(() {
+      _isLoadingMore = true;
+    });
+
+    try {
+      _startIndex += 10;
+
+      final moreBooks = await _bookService.searchBooks(
+        query: _controller.text,
+        type: _searchType,
+        startIndex: _startIndex,
+      );
+
+      setState(() {
+        _books.addAll(moreBooks);
+
+        if (moreBooks.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Não há mais livros para carregar.')),
+          );
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao carregar mais: $e')));
+    } finally {
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +100,7 @@ class _SearchPageState extends State<SearchPage> {
       ),
       body: Column(
         children: [
-          // barra de pesquisa
+          // Barra de pesquisa
           Container(
             padding: const EdgeInsets.all(16.0),
             color: Colors.grey[50],
@@ -116,16 +156,33 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
 
-          // resultados
+          // Resultados
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _errorMessage.isNotEmpty
                 ? Center(child: Text(_errorMessage))
                 : ListView.separated(
-                    itemCount: _books.length,
+                    itemCount: _books.length + (_books.isNotEmpty ? 1 : 0),
                     separatorBuilder: (_, __) => const Divider(),
                     itemBuilder: (context, index) {
+                      if (index == _books.length) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: _isLoadingMore
+                              ? const Center(child: CircularProgressIndicator())
+                              : ElevatedButton(
+                                  onPressed: _loadMoreBooks,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                  ),
+                                  child: const Text('Carregar Mais'),
+                                ),
+                        );
+                      }
+
                       final book = _books[index];
                       return ListTile(
                         leading: book.capa.isNotEmpty
@@ -144,7 +201,6 @@ class _SearchPageState extends State<SearchPage> {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(book.authors),
-                        // abre o livro
                         onTap: () {
                           Navigator.push(
                             context,
