@@ -4,16 +4,16 @@ import 'package:http/http.dart' as http;
 enum SearchType { title, author }
 
 class Book {
-  //final String id;
   final String title;
   final String authors;
   final String capa;
+  final String description; 
 
   Book({
-    //required this.id,
     required this.title,
     required this.authors,
     required this.capa,
+    required this.description, 
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -29,10 +29,10 @@ class Book {
         : '';
 
     return Book(
-      //id: json['id'],
       title: volumeInfo['title'] ?? 'Sem título',
       authors: authorsStr,
       capa: image,
+      description: volumeInfo['description'] ?? 'Sem descrição disponível.',
     );
   }
 }
@@ -41,6 +41,7 @@ class BookService {
   Future<List<Book>> searchBooks({
     required String query,
     required SearchType type,
+    int startIndex = 0,
   }) async {
     http.Response response;
     if (query.isEmpty) return [];
@@ -48,13 +49,13 @@ class BookService {
     if (type == SearchType.title) {
       response = await http.get(
         Uri.parse(
-          'https://www.googleapis.com/books/v1/volumes?q=intitle:$query',
+          'https://www.googleapis.com/books/v1/volumes?q=intitle:$query&startIndex=$startIndex',
         ),
       );
     } else {
       response = await http.get(
         Uri.parse(
-          'https://www.googleapis.com/books/v1/volumes?q=inauthor:$query',
+          'https://www.googleapis.com/books/v1/volumes?q=inauthor:$query&startIndex=$startIndex',
         ),
       );
     }
