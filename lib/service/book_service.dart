@@ -7,13 +7,13 @@ class Book {
   final String title;
   final String authors;
   final String capa;
-  final String description; 
+  final String description;
 
   Book({
     required this.title,
     required this.authors,
     required this.capa,
-    required this.description, 
+    required this.description,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
