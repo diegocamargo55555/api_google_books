@@ -243,57 +243,64 @@ class BookDetailPage extends StatelessWidget {
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (book.capa.isNotEmpty)
-              Center(
-                child: Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Image.network(
-                    book.capa,
-                    height: 250,
-                    fit: BoxFit.cover,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/fundo.jpeg'),
+            fit: BoxFit.cover,
+            opacity: 0.3, // Mantendo a mesma opacidade da tela de busca
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (book.capa.isNotEmpty)
+                Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Image.network(
+                      book.capa,
+                      height: 250,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
+              const SizedBox(height: 24),
+              Text(
+                book.title,
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            const SizedBox(height: 24),
-            Text(
-              book.title,
-              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Por: ${book.authors}',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey[700],
-                fontStyle: FontStyle.italic,
+              const SizedBox(height: 8),
+              Text(
+                'Por: ${book.authors}',
+                style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic),
               ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Resumo',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              book.description,
-              style: const TextStyle(fontSize: 16, height: 1.5),
-              textAlign: TextAlign.justify,
-            ),
-          ],
+              const SizedBox(height: 24),
+              const Text(
+                'Resumo',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                book.description,
+                style: const TextStyle(fontSize: 16, height: 1.5),
+                textAlign: TextAlign.justify,
+              ),
+            ],
+          ),
         ),
       ),
     );
